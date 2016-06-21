@@ -16,7 +16,7 @@ public class NaiveBaselineTransactionEventHandler implements TransactionEventHan
 
     GraphDatabaseAPI db;
 
-    public NaiveBaselineTransactionEventHandler(GraphDatabaseAPI gdb){
+    public void setGraphDB(GraphDatabaseAPI gdb){
         db = gdb;
     }
 
@@ -30,7 +30,6 @@ public class NaiveBaselineTransactionEventHandler implements TransactionEventHan
             }
 
             Iterator<Node> it = transactionData.createdNodes().iterator();
-
             while (it.hasNext()) {
                 Node n = it.next();
                 // TESTING IN PROGRESS

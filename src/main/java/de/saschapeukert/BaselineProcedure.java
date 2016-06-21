@@ -28,12 +28,14 @@ public class BaselineProcedure {
 
     public static String LABELNAME = "$VIRTUAL$";
 
+    public static NaiveBaselineTransactionEventHandler virtualHandler = new NaiveBaselineTransactionEventHandler();
+
     @Procedure
     @PerformsWrites
     public Stream<MapResult> get(@Name("cypher") String statement, @Name("params") Map<String, Object> params) {
-        api.registerTransactionEventHandler(new NaiveBaselineTransactionEventHandler(api));
+        virtualHandler.setGraphDB(api);
+        api.registerTransactionEventHandler(virtualHandler);
         return run(statement,params);
-        //return Util.nodeStream(db, ids).map(NodeResult::new);
     }
 
     private Stream<MapResult> run(@Name("cypher") String statement, @Name("params") Map<String, Object> params) {
