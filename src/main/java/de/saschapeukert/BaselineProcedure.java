@@ -26,7 +26,7 @@ public class BaselineProcedure {
     @Context
     public GraphDatabaseAPI api;
 
-    public static String LABELNAME = "$VIRTUAL$";
+    public static String PROPERTYKEY = "$VIRTUAL$";
 
     public static NaiveBaselineTransactionEventHandler virtualHandler = new NaiveBaselineTransactionEventHandler();
 

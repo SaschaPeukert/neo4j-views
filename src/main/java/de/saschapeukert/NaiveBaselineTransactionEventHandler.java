@@ -1,6 +1,7 @@
 package de.saschapeukert;
 
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.event.TransactionData;
@@ -22,24 +23,39 @@ public class NaiveBaselineTransactionEventHandler implements TransactionEventHan
 
     @Override
     public Object beforeCommit(TransactionData transactionData) throws Exception {
-        // if new node has got certain label it needs to be removed
-        try (Transaction tx = db.beginTx()) {
-            Iterator<Relationship> rit = transactionData.createdRelationships().iterator();
-            while (rit.hasNext()) {
-                rit.next().delete();
+        // RELS
+        Iterator<Relationship> rit = transactionData.createdRelationships().iterator();
+        while (rit.hasNext()) {
+            Relationship r = rit.next();
+            if(entityHasProperty(r,BaselineProcedure.PROPERTYKEY)){
+                try (Transaction tx = db.beginTx()) {
+                    r.delete();
+                    tx.success();
+                }
             }
+            r.delete();
+        }
 
-            Iterator<Node> it = transactionData.createdNodes().iterator();
-            while (it.hasNext()) {
-                Node n = it.next();
-                // TESTING IN PROGRESS
-                //if(n.hasLabel(Label.label(BaselineProcedure.LABELNAME))){
-                // detatch delete
-                n.delete();
+        // NODES
+        Iterator<Node> it = transactionData.createdNodes().iterator();
+        while (it.hasNext()) {
+            Node n = it.next();
+            if(entityHasProperty(n,BaselineProcedure.PROPERTYKEY)){
+                try (Transaction tx = db.beginTx()) {
+                    n.delete();
+                    tx.success();
+                }
             }
-            tx.success();
         }
         return null;
+    }
+
+    private boolean entityHasProperty(PropertyContainer entity, String key){
+        // would like to delete it here too, but can't because of PropertyContainer
+        if(entity.hasProperty(key)){
+            return true;
+        }
+        return false;
     }
 
     @Override

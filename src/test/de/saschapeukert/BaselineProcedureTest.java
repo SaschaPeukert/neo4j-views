@@ -40,7 +40,6 @@ public class BaselineProcedureTest {
         db.shutdown();
     }
 
-
     @Test
     public void virtualNodesShouldBeCreatable() {
         Result r= createVirtualNode();
@@ -55,8 +54,26 @@ public class BaselineProcedureTest {
             Assert.assertEquals("Name property should be set to 'Hello'", "Name=Hello", split[0].substring(1));
             Assert.assertEquals("Label of the virtual node should be set to 'TEST'", " Labels=[TEST]", split[1].substring(0, split[1].length() - 1));
         }
-
     }
+
+    @Test
+    public void realNodesShouldBeCreatable() {
+        Result r= createRealNode();
+        Assert.assertNotNull("Result should not be null", r);
+        while (r.hasNext()) {
+            Map<String, Object> map = r.next();
+            Set<String> set = map.keySet();
+            Iterator<String> sit = set.iterator();
+
+            String result = map.get(sit.next()).toString();
+            String[] split = result.split(",");
+            Assert.assertEquals("Name property should be set to 'Hello'", "Name=Hello", split[0].substring(1));
+            Assert.assertEquals("Label of the virtual node should be set to 'TEST'", " Labels=[TEST]", split[1].substring(0, split[1].length() - 1));
+        }
+        //Clean up
+        detachDeleteAllNodes();
+    }
+
     @Test
     public void virtualNodesShouldntBePersistent() {
         Result r= createVirtualNode();
@@ -73,16 +90,61 @@ public class BaselineProcedureTest {
             Iterator<String> sit = set.iterator();
 
             while(sit.hasNext()){
-                Assert.assertEquals(map.get(sit.next()).toString(),"0");
+                Assert.assertEquals("0",map.get(sit.next()).toString());
             }
 
         }
     }
 
+    @Test
+    public void realNodesShouldntBePersistent() {
+        Result r= createRealNode();
+        Assert.assertNotNull("Result should not be null", r);
+
+        try (Transaction tx = db.beginTx()) {
+            r = db.execute("MATCH(n) RETURN COUNT(n)");
+            tx.success();
+        }
+        Assert.assertNotNull("Result should not be null",r);
+        while(r.hasNext()) {
+            Map<String,Object> map = r.next();
+            Set<String> set =map.keySet();
+            Iterator<String> sit = set.iterator();
+
+            while(sit.hasNext()){
+                Assert.assertEquals("1",map.get(sit.next()).toString());
+            }
+
+        }
+
+        //Clean up
+        detachDeleteAllNodes();
+    }
+
+    private Result createRealNode(){
+        Result r;
+        try (Transaction tx = db.beginTx()) {
+            r = db.execute("CALL de.saschapeukert.get(\"CREATE (n:TEST{name: 'Hello'"+
+                    "}) RETURN n.name as Name, Labels(n) as Labels\", null) yield value");
+            tx.success();
+        }
+        return r;
+    }
+
     private Result createVirtualNode(){
         Result r;
         try (Transaction tx = db.beginTx()) {
-            r = db.execute("CALL de.saschapeukert.get(\"CREATE (n:TEST{name: 'Hello'}) RETURN n.name as Name, Labels(n) as Labels\", null) yield value");
+            r = db.execute("CALL de.saschapeukert.get(\"CREATE (n:TEST{name: 'Hello', "+BaselineProcedure.PROPERTYKEY+
+                    ": true}) RETURN n.name as Name, Labels(n) as Labels\", null) yield value");
+            tx.success();
+        }
+        return r;
+    }
+
+    private Result detachDeleteAllNodes(){
+        Result r;
+        try (Transaction tx = db.beginTx()) {
+            r = db.execute("MATCH (n) DETACH DELETE n");
             tx.success();
         }
         return r;
