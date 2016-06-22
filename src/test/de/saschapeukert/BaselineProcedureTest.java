@@ -16,6 +16,7 @@ import org.neo4j.test.TestGraphDatabaseFactory;
 
 import java.io.File;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -116,9 +117,31 @@ public class BaselineProcedureTest {
             }
 
         }
-
         //Clean up
         detachDeleteAllNodes();
+    }
+
+    @Test
+    public void extractVirtualPartShouldWorkProperly(){
+        BaselineProcedure sut = new BaselineProcedure();
+
+        String count ="MATCH(n) RETURN COUNT(n)";
+        String oneVirtual = "CREATE VIRTUAL (n:Test) RETURN n";
+        String threeVirtual = "CREATE VIRTUAL (n:Test) CREATE VIRTUAL (m:Person) WITH n,m create VIRTUAL m-[:WROTE]->n RETURN n";
+        //String oneVirtualoneReal = "CREATE VIRTUAL (n:Test) CREATE (m:Person) RETURN n,m";
+
+        List<String> list =sut.extractVirtualPart(count);
+        Assert.assertEquals("Querys without CREATE VIRTUAL should not be appear in the list at all",0,list.size());
+
+        list =sut.extractVirtualPart(oneVirtual);
+        Assert.assertEquals("Failed to recognize Statement: " + oneVirtual,1,list.size());
+        Assert.assertEquals("Failed to extract Statement: " + oneVirtual,"(N:TEST)",list.get(0));
+
+        list =sut.extractVirtualPart(threeVirtual);
+        Assert.assertEquals("Failed to recognize Statement: " + threeVirtual,3,list.size());
+        Assert.assertEquals("Failed to extract first path in Statement: " + threeVirtual,"(N:TEST)",list.get(0));
+        Assert.assertEquals("Failed to extract second path in Statement: " + threeVirtual,"(M:PERSON)",list.get(1));
+        Assert.assertEquals("Failed to extract third path in Statement: " + threeVirtual,"M-[:WROTE]->N",list.get(2));
     }
 
     private Result createRealNode(){

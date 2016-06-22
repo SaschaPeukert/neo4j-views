@@ -7,9 +7,7 @@ import org.neo4j.procedure.Name;
 import org.neo4j.procedure.PerformsWrites;
 import org.neo4j.procedure.Procedure;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -49,5 +47,39 @@ public class BaselineProcedure {
         return declaration + fragment;
     }
 
+
+    public List<String> extractVirtualPart(String statement){
+        List<String> returnList = new ArrayList<>(); // Multiple Create Virtual possible!
+        String[] cypherKeywords = {"SET ","DELETE ","REMOVE ","FOREACH ", "RETURN ", " MATCH ", "WHERE ", "OPTIONAL",
+        "WITH ", "CREATE ", ";"};
+        String createVirtualString = "CREATE VIRTUAL ";
+        statement = statement.toUpperCase();
+        String path = "";
+
+        // PROBLEM: USELESS WHITESPACE
+
+        while(statement.contains(createVirtualString)){
+            // find start
+            int pos1 = statement.indexOf(createVirtualString);
+            pos1 = pos1 + createVirtualString.length();
+            path = statement.substring(pos1); // statement with start after Create virtual
+            // find end of path -> looking for next cypher keyword
+            int pos_end_min = path.length()-1;
+            for(String s:cypherKeywords){
+                if(path.contains(s)) {
+                    int tempPos = path.indexOf(s) - 1;
+                    if (tempPos < pos_end_min)
+                        pos_end_min = tempPos;
+                }
+            }
+            path = path.substring(0,pos_end_min);
+            returnList.add(path);
+            path = createVirtualString + path;
+
+            statement =statement.substring(0,statement.indexOf(path)) +
+                    statement.substring(statement.indexOf(path) + path.length());
+        }
+        return returnList;
+    }
 }
 
