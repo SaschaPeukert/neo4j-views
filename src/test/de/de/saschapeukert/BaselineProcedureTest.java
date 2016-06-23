@@ -1,6 +1,5 @@
-package saschapeukert;
+package de.saschapeukert;
 
-import de.saschapeukert.BaselineProcedure;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -159,6 +158,7 @@ public class BaselineProcedureTest {
         Assert.assertEquals(count,sut.removeUselessWhitespace(blownCount));
         Assert.assertEquals(count, count);
     }
+
 
     private Result createRealNode(){
         Result r;
