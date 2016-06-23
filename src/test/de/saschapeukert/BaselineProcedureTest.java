@@ -128,7 +128,7 @@ public class BaselineProcedureTest {
         String count ="MATCH(n) RETURN COUNT(n)";
         String oneVirtual = "CREATE VIRTUAL (n:Test) RETURN n";
         String threeVirtual = "CREATE VIRTUAL (n:Test) CREATE VIRTUAL (m:Person) WITH n,m create VIRTUAL m-[:WROTE]->n RETURN n";
-        //String oneVirtualoneReal = "CREATE VIRTUAL (n:Test) CREATE (m:Person) RETURN n,m";
+        String oneVirtualoneReal = "CREATE VIRTUAL (n:Test) CREATE (m:Person) RETURN n,m";
 
         List<String> list =sut.extractVirtualPart(count);
         Assert.assertEquals("Querys without CREATE VIRTUAL should not be appear in the list at all",0,list.size());
@@ -142,6 +142,22 @@ public class BaselineProcedureTest {
         Assert.assertEquals("Failed to extract first path in Statement: " + threeVirtual,"(N:TEST)",list.get(0));
         Assert.assertEquals("Failed to extract second path in Statement: " + threeVirtual,"(M:PERSON)",list.get(1));
         Assert.assertEquals("Failed to extract third path in Statement: " + threeVirtual,"M-[:WROTE]->N",list.get(2));
+
+        list =sut.extractVirtualPart(oneVirtualoneReal);
+        Assert.assertEquals("Failed to recognize Statement: " + oneVirtualoneReal,1,list.size());
+        Assert.assertEquals("Failed to extract Statement: " + oneVirtualoneReal,"(N:TEST)",list.get(0));
+    }
+
+
+    @Test
+    public void removeWhitespaceShouldWorkFine(){
+        BaselineProcedure sut = new BaselineProcedure();
+
+        String count ="MATCH (n) RETURN COUNT (n)";
+        String blownCount = "MATCH (n)      RETURN    COUNT (n)";
+
+        Assert.assertEquals(count,sut.removeUselessWhitespace(blownCount));
+        Assert.assertEquals(count, count);
     }
 
     private Result createRealNode(){

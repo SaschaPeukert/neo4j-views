@@ -48,6 +48,24 @@ public class BaselineProcedure {
     }
 
 
+
+    // Every new Rel/Node in the virtual Path will be marked
+    // (n:LABEL) || (:LABEL) -> new Node
+    // [:REL] || [r:REL] -> new Rel
+
+    public String removeUselessWhitespace(String s){
+        boolean changed = true;
+        while(changed) {
+            changed = false;
+            if(s!=s.replaceAll("  ", " ")){
+                s = s.replaceAll("  ", " ");
+                changed=true;
+            }
+        }
+        return s;
+    }
+
+
     public List<String> extractVirtualPart(String statement){
         List<String> returnList = new ArrayList<>(); // Multiple Create Virtual possible!
         String[] cypherKeywords = {"SET ","DELETE ","REMOVE ","FOREACH ", "RETURN ", " MATCH ", "WHERE ", "OPTIONAL",
