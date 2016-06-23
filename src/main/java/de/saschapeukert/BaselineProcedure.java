@@ -47,12 +47,6 @@ public class BaselineProcedure {
         return declaration + fragment;
     }
 
-
-
-    // Every new Rel/Node in the virtual Path will be marked
-    // (n:LABEL) || (:LABEL) -> new Node
-    // [:REL] || [r:REL] -> new Rel
-
     public String removeUselessWhitespace(String s){
         boolean changed = true;
         while(changed) {
