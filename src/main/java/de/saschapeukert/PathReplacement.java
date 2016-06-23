@@ -65,5 +65,5 @@ public class PathReplacement {
         return s;
     }
 
-    //TODO: change tests for extract and add Test for enhancePath
+    //TODO: change tests for extract
 }
