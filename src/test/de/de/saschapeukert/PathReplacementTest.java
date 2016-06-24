@@ -24,6 +24,7 @@ public class PathReplacementTest {
 
     private String testBoth1 = "(:Person{name:'Bob'})-[wr:WROTE{test:true}]->(:Test)";
     private String testBoth2 = "(:Person{name:'Bob'})-[wr:WROTE{test:true}]->(:Test)<-[:WROTE]-(he:Person)";
+    private String testBoth3 = "(n)-[:TESTED]->(:Person)";
 
     private static PathReplacement SuT;
 
@@ -62,21 +63,18 @@ public class PathReplacementTest {
     @Test
     public void enhancePathShouldWorkProperly(){
         SuT = new PathReplacement(testNode1,0,1);
-        SuT.enhancePath();
         Assert.assertEquals(
                 "(he:Person{name:'Bob',"+ BaselineProcedure.PROPERTYKEY+":true})"
                 ,SuT.getNewPathString()
         );
 
         SuT = new PathReplacement(testRel5,0,1);
-        SuT.enhancePath();
         Assert.assertEquals(
                 "-[wr:WROTE{test:true,"+BaselineProcedure.PROPERTYKEY+":true}]->"
                 ,SuT.getNewPathString()
         );
 
         SuT = new PathReplacement(testBoth1,0,1);
-        SuT.enhancePath();
         Assert.assertEquals(
                 "(:Person{name:'Bob',"+BaselineProcedure.PROPERTYKEY+":true})-[wr:WROTE{test:true," +
                 BaselineProcedure.PROPERTYKEY+":true}]->(:Test{"+BaselineProcedure.PROPERTYKEY+":true})"
@@ -84,12 +82,18 @@ public class PathReplacementTest {
         );
 
         SuT = new PathReplacement(testBoth2,0,1);
-        SuT.enhancePath();
         Assert.assertEquals(
                 "(:Person{name:'Bob',"+BaselineProcedure.PROPERTYKEY+":true})-[wr:WROTE{test:true," +
                         BaselineProcedure.PROPERTYKEY+":true}]->(:Test{"+BaselineProcedure.PROPERTYKEY
                         +":true})<-[:WROTE{"+BaselineProcedure.PROPERTYKEY+":true}]-(he:Person{"
                         +BaselineProcedure.PROPERTYKEY+":true})"
+                ,SuT.getNewPathString()
+        );
+
+        SuT = new PathReplacement(testBoth3,0,1);
+        Assert.assertEquals(
+                "(n)-[:TESTED{"+BaselineProcedure.PROPERTYKEY+":true}]->(:Person{" +
+                        BaselineProcedure.PROPERTYKEY+":true})"
                 ,SuT.getNewPathString()
         );
 
