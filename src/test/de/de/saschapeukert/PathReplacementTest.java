@@ -35,28 +35,28 @@ public class PathReplacementTest {
     public static void tearDown() {}
 
     @Test
-    public void translateShouldWorkProperlyOnNodes(){
+    public void injectVirtualPropertiesShouldWorkProperlyOnNodes(){
         SuT = new PathReplacement("",0,1); // do not care here
         Assert.assertEquals("(he:Person{name:'Bob',"+ BaselineProcedure.PROPERTYKEY+":true})"
-                ,SuT.translate(testNode1,true));
+                ,SuT.injectVirtualProperties(testNode1,true));
         Assert.assertEquals("(:Person{name:'Bob',"+ BaselineProcedure.PROPERTYKEY+":true})"
-                ,SuT.translate(testNode2,true));
+                ,SuT.injectVirtualProperties(testNode2,true));
         Assert.assertEquals("(:Person{"+ BaselineProcedure.PROPERTYKEY+":true})"
-                ,SuT.translate(testNode3,true));
+                ,SuT.injectVirtualProperties(testNode3,true));
         Assert.assertEquals("(he:Person{"+ BaselineProcedure.PROPERTYKEY+":true})"
-                ,SuT.translate(testNode4,true));
+                ,SuT.injectVirtualProperties(testNode4,true));
 
     }
 
     @Test
-    public void translateShouldWorkProperlyOnRelationships(){
+    public void injectVirtualPropertiesShouldWorkProperlyOnRelationships(){
         SuT = new PathReplacement("",0,1); // do not care here
-        Assert.assertEquals("-[:WROTE{"+BaselineProcedure.PROPERTYKEY+":true}]->",SuT.translate(testRel1,false));
-        Assert.assertEquals("-[:WROTE{"+BaselineProcedure.PROPERTYKEY+":true}]-",SuT.translate(testRel2,false));
-        Assert.assertEquals("<-[:WROTE{"+BaselineProcedure.PROPERTYKEY+":true}]-",SuT.translate(testRel3,false));
-        Assert.assertEquals("-[wr:WROTE{"+BaselineProcedure.PROPERTYKEY+":true}]->",SuT.translate(testRel4,false));
-        Assert.assertEquals("-[wr:WROTE{test:true,"+BaselineProcedure.PROPERTYKEY+":true}]->",SuT.translate(testRel5,false));
-        Assert.assertEquals("-[:WROTE{test:true,"+BaselineProcedure.PROPERTYKEY+":true}]->",SuT.translate(testRel6,false));
+        Assert.assertEquals("-[:WROTE{"+BaselineProcedure.PROPERTYKEY+":true}]->",SuT.injectVirtualProperties(testRel1,false));
+        Assert.assertEquals("-[:WROTE{"+BaselineProcedure.PROPERTYKEY+":true}]-",SuT.injectVirtualProperties(testRel2,false));
+        Assert.assertEquals("<-[:WROTE{"+BaselineProcedure.PROPERTYKEY+":true}]-",SuT.injectVirtualProperties(testRel3,false));
+        Assert.assertEquals("-[wr:WROTE{"+BaselineProcedure.PROPERTYKEY+":true}]->",SuT.injectVirtualProperties(testRel4,false));
+        Assert.assertEquals("-[wr:WROTE{test:true,"+BaselineProcedure.PROPERTYKEY+":true}]->",SuT.injectVirtualProperties(testRel5,false));
+        Assert.assertEquals("-[:WROTE{test:true,"+BaselineProcedure.PROPERTYKEY+":true}]->",SuT.injectVirtualProperties(testRel6,false));
     }
 
     @Test
