@@ -32,6 +32,9 @@ public class BaselineProcedure {
     @PerformsWrites
     public Stream<MapResult> get(@Name("cypher") String statement, @Name("params") Map<String, Object> params) {
         virtualHandler.setGraphDB(api);
+
+        statement = removeUselessWhitespace(statement);
+
         api.registerTransactionEventHandler(virtualHandler);
         return run(statement,params);
     }
@@ -43,7 +46,8 @@ public class BaselineProcedure {
 
     private String compiled(String fragment, Collection<String> keys) {
         if (keys.isEmpty()) return fragment;
-        String declaration = " WITH " + join(", ", keys.stream().map(s -> format(" {`%s`} as `%s` ", s, s)).collect(toList()));
+        String declaration = " WITH " + join(", ", keys.stream().map(s -> format(" {`%s`} as `%s` ", s, s))
+                .collect(toList()));
         return declaration + fragment;
     }
 
@@ -59,22 +63,19 @@ public class BaselineProcedure {
         return s;
     }
 
-
-    public List<String> extractVirtualPart(String statement){
-        List<String> returnList = new ArrayList<>(); // Multiple Create Virtual possible!
+    public List<PathReplacement> extractVirtualPart(String statement){
+        List<PathReplacement> returnList = new ArrayList<>(); // Multiple Create Virtual possible!
         String[] cypherKeywords = {"SET ","DELETE ","REMOVE ","FOREACH ", "RETURN ", " MATCH ", "WHERE ", "OPTIONAL",
-        "WITH ", "CREATE ", ";"};
+                "WITH ", "CREATE ", ";"};
         String createVirtualString = "CREATE VIRTUAL ";
         statement = statement.toUpperCase();
         String path = "";
 
-        // PROBLEM: USELESS WHITESPACE
-
         while(statement.contains(createVirtualString)){
             // find start
-            int pos1 = statement.indexOf(createVirtualString);
-            pos1 = pos1 + createVirtualString.length();
-            path = statement.substring(pos1); // statement with start after Create virtual
+            int posStart = statement.indexOf(createVirtualString);
+            posStart = posStart + createVirtualString.length();
+            path = statement.substring(posStart); // statement with start after Create virtual
             // find end of path -> looking for next cypher keyword
             int pos_end_min = path.length()-1;
             for(String s:cypherKeywords){
@@ -85,7 +86,7 @@ public class BaselineProcedure {
                 }
             }
             path = path.substring(0,pos_end_min);
-            returnList.add(path);
+            returnList.add(new PathReplacement(path,posStart));
             path = createVirtualString + path;
 
             statement =statement.substring(0,statement.indexOf(path)) +

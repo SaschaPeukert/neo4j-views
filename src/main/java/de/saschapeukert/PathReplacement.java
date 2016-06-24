@@ -26,10 +26,10 @@ public class PathReplacement {
         return endPos;
     }
 
-    public PathReplacement(String originalPathString, int start, int end){
+    public PathReplacement(String originalPathString, int start){
         this.originalPathString = originalPathString;
         this.startPos = start;
-        this.endPos = end;
+        this.endPos = start + originalPathString.length();
 
         enhancePath();
     }
@@ -104,6 +104,4 @@ public class PathReplacement {
         }
         return s;
     }
-
-    //TODO: change tests for extract
 }

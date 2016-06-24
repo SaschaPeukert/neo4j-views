@@ -37,7 +37,7 @@ public class PathReplacementTest {
 
     @Test
     public void injectVirtualPropertiesShouldWorkProperlyOnNodes(){
-        SuT = new PathReplacement("",0,1); // do not care here
+        SuT = new PathReplacement("",0); // do not care here
         Assert.assertEquals("(he:Person{name:'Bob',"+ BaselineProcedure.PROPERTYKEY+":true})"
                 ,SuT.injectVirtualProperties(testNode1,true));
         Assert.assertEquals("(:Person{name:'Bob',"+ BaselineProcedure.PROPERTYKEY+":true})"
@@ -51,37 +51,43 @@ public class PathReplacementTest {
 
     @Test
     public void injectVirtualPropertiesShouldWorkProperlyOnRelationships(){
-        SuT = new PathReplacement("",0,1); // do not care here
-        Assert.assertEquals("-[:WROTE{"+BaselineProcedure.PROPERTYKEY+":true}]->",SuT.injectVirtualProperties(testRel1,false));
-        Assert.assertEquals("-[:WROTE{"+BaselineProcedure.PROPERTYKEY+":true}]-",SuT.injectVirtualProperties(testRel2,false));
-        Assert.assertEquals("<-[:WROTE{"+BaselineProcedure.PROPERTYKEY+":true}]-",SuT.injectVirtualProperties(testRel3,false));
-        Assert.assertEquals("-[wr:WROTE{"+BaselineProcedure.PROPERTYKEY+":true}]->",SuT.injectVirtualProperties(testRel4,false));
-        Assert.assertEquals("-[wr:WROTE{test:true,"+BaselineProcedure.PROPERTYKEY+":true}]->",SuT.injectVirtualProperties(testRel5,false));
-        Assert.assertEquals("-[:WROTE{test:true,"+BaselineProcedure.PROPERTYKEY+":true}]->",SuT.injectVirtualProperties(testRel6,false));
+        SuT = new PathReplacement("",0); // do not care here
+        Assert.assertEquals("-[:WROTE{"+BaselineProcedure.PROPERTYKEY+":true}]->"
+                ,SuT.injectVirtualProperties(testRel1,false));
+        Assert.assertEquals("-[:WROTE{"+BaselineProcedure.PROPERTYKEY+":true}]-"
+                ,SuT.injectVirtualProperties(testRel2,false));
+        Assert.assertEquals("<-[:WROTE{"+BaselineProcedure.PROPERTYKEY+":true}]-"
+                ,SuT.injectVirtualProperties(testRel3,false));
+        Assert.assertEquals("-[wr:WROTE{"+BaselineProcedure.PROPERTYKEY+":true}]->"
+                ,SuT.injectVirtualProperties(testRel4,false));
+        Assert.assertEquals("-[wr:WROTE{test:true,"+BaselineProcedure.PROPERTYKEY+":true}]->"
+                ,SuT.injectVirtualProperties(testRel5,false));
+        Assert.assertEquals("-[:WROTE{test:true,"+BaselineProcedure.PROPERTYKEY+":true}]->"
+                ,SuT.injectVirtualProperties(testRel6,false));
     }
 
     @Test
     public void enhancePathShouldWorkProperly(){
-        SuT = new PathReplacement(testNode1,0,1);
+        SuT = new PathReplacement(testNode1,0);
         Assert.assertEquals(
                 "(he:Person{name:'Bob',"+ BaselineProcedure.PROPERTYKEY+":true})"
                 ,SuT.getNewPathString()
         );
 
-        SuT = new PathReplacement(testRel5,0,1);
+        SuT = new PathReplacement(testRel5,0);
         Assert.assertEquals(
                 "-[wr:WROTE{test:true,"+BaselineProcedure.PROPERTYKEY+":true}]->"
                 ,SuT.getNewPathString()
         );
 
-        SuT = new PathReplacement(testBoth1,0,1);
+        SuT = new PathReplacement(testBoth1,0);
         Assert.assertEquals(
                 "(:Person{name:'Bob',"+BaselineProcedure.PROPERTYKEY+":true})-[wr:WROTE{test:true," +
                 BaselineProcedure.PROPERTYKEY+":true}]->(:Test{"+BaselineProcedure.PROPERTYKEY+":true})"
                 ,SuT.getNewPathString()
         );
 
-        SuT = new PathReplacement(testBoth2,0,1);
+        SuT = new PathReplacement(testBoth2,0);
         Assert.assertEquals(
                 "(:Person{name:'Bob',"+BaselineProcedure.PROPERTYKEY+":true})-[wr:WROTE{test:true," +
                         BaselineProcedure.PROPERTYKEY+":true}]->(:Test{"+BaselineProcedure.PROPERTYKEY
@@ -90,7 +96,7 @@ public class PathReplacementTest {
                 ,SuT.getNewPathString()
         );
 
-        SuT = new PathReplacement(testBoth3,0,1);
+        SuT = new PathReplacement(testBoth3,0);
         Assert.assertEquals(
                 "(n)-[:TESTED{"+BaselineProcedure.PROPERTYKEY+":true}]->(:Person{" +
                         BaselineProcedure.PROPERTYKEY+":true})"
