@@ -159,8 +159,17 @@ public class BaselineProcedureTest {
         String count ="MATCH (n) RETURN COUNT (n)";
         String blownCount = "MATCH (n)      RETURN    COUNT (n)";
 
-        Assert.assertEquals(count,sut.removeUselessWhitespace(blownCount));
-        Assert.assertEquals(count, count);
+        Assert.assertEquals(count,sut.replaceStringFromStatement(blownCount,"  "," "));
+    }
+
+    @Test
+    public void replaceCreateVirtualWithCreateShouldWork(){
+        BaselineProcedure sut = new BaselineProcedure();
+
+        String teststring ="CREATE (n:Person) WITH n CREATE VIRTUAL (t:TEST) CREATE VIRTUAL n-[:WROTE]->t";
+        String resultString = "CREATE (n:Person) WITH n CREATE (t:TEST) CREATE n-[:WROTE]->t";
+
+        Assert.assertEquals(resultString,sut.replaceStringFromStatement(teststring,"CREATE VIRTUAL ","CREATE "));
     }
 
 

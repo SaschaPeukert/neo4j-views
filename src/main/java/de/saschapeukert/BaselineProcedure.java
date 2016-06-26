@@ -33,7 +33,12 @@ public class BaselineProcedure {
     public Stream<MapResult> get(@Name("cypher") String statement, @Name("params") Map<String, Object> params) {
         virtualHandler.setGraphDB(api);
 
-        statement = removeUselessWhitespace(statement);
+        statement = replaceStringFromStatement(statement,"  "," "); // replace useless whitespace
+
+        //statement = replacePathWithVirtualPaths(statement,extractVirtualPart(statement));
+
+        // remove VIRTUAL
+        //statement = replaceStringFromStatement(statement.toUpperCase(),"CREATE VIRTUAL ","CREATE "); // replace useless whitespace
 
         api.registerTransactionEventHandler(virtualHandler);
         return run(statement,params);
@@ -51,16 +56,38 @@ public class BaselineProcedure {
         return declaration + fragment;
     }
 
-    public String removeUselessWhitespace(String s){
-        boolean changed = true;
-        while(changed) {
-            changed = false;
-            if(s!=s.replaceAll("  ", " ")){
-                s = s.replaceAll("  ", " ");
-                changed=true;
-            }
+    /**
+     *
+     * @param statement
+     * @param remove Needs to be longer than instead string!
+     * @param instead
+     * @return
+     */
+    public String replaceStringFromStatement(String statement, String remove, String instead){
+        int idx = statement.toLowerCase().indexOf(remove.toLowerCase());
+        while(idx!=-1){
+            statement = statement.substring(0,idx) + instead +statement.substring(idx+remove.length());
+            idx = statement.toLowerCase().indexOf(remove.toLowerCase());
         }
-        return s;
+
+        return statement;
+    }
+
+    public String replacePathWithVirtualPaths(String statement, List<PathReplacement> listOfPathReplacements){
+        String ret="";
+
+        int pos =0;
+        for(PathReplacement p : listOfPathReplacements){
+            //ret = ret + statement.substring(pos,p.getStartPos()) + p.getNewPathString() + ;
+            // TODO DO THIS
+
+            // CREATE VIRTUAL (n:Person)
+            // WITH n
+            // CREATE n-[:TESTED]->(g:Game)
+
+        }
+
+        return ret;
     }
 
     public List<PathReplacement> extractVirtualPart(String statement){
