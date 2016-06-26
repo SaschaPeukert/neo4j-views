@@ -1,9 +1,6 @@
 package de.saschapeukert;
 
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.PropertyContainer;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.event.TransactionData;
 import org.neo4j.graphdb.event.TransactionEventHandler;
 import org.neo4j.kernel.internal.GraphDatabaseAPI;
@@ -33,7 +30,9 @@ public class NaiveBaselineTransactionEventHandler implements TransactionEventHan
                     tx.success();
                 }
             }
-            r.delete();
+            try {
+                r.delete();
+            } catch (NotFoundException e){}
         }
 
         // NODES

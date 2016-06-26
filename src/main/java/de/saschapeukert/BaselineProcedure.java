@@ -30,15 +30,15 @@ public class BaselineProcedure {
 
     @Procedure
     @PerformsWrites
-    public Stream<MapResult> get(@Name("cypher") String statement, @Name("params") Map<String, Object> params) {
+    public Stream<MapResult> runCypher(@Name("cypher") String statement, @Name("params") Map<String, Object> params) {
         virtualHandler.setGraphDB(api);
 
         statement = replaceStringFromStatement(statement,"  "," "); // replace useless whitespace
 
-        //statement = replacePathWithVirtualPaths(statement,extractVirtualPart(statement));
+        statement = replacePathWithVirtualPaths(statement,extractVirtualPart(statement));
 
         // remove VIRTUAL
-        //statement = replaceStringFromStatement(statement.toUpperCase(),"CREATE VIRTUAL ","CREATE "); // replace useless whitespace
+        statement = replaceStringFromStatement(statement,"CREATE VIRTUAL ","CREATE ");
 
         api.registerTransactionEventHandler(virtualHandler);
         return run(statement,params);

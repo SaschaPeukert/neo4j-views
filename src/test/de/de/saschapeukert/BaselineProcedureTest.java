@@ -41,6 +41,33 @@ public class BaselineProcedureTest {
     }
 
     @Test
+    public void complexQueryShouldWork() {
+        Result r;
+        try (Transaction tx = db.beginTx()) {
+            r = db.execute("CALL de.saschapeukert.runCypher(\"CREATE VIRTUAL (n:Test) " +
+                    "WITH n CREATE VIRTUAL (m:Person) WITH n,m create VIRTUAL " +
+                    "(m)-[w:WROTE]->(n) RETURN Labels(n), Labels(m), Type(w)\", null) yield value");
+            tx.success();
+        }
+        Assert.assertNotNull("Result should not be null", r);
+        while (r.hasNext()) {
+            Map<String, Object> map = r.next();
+            Set<String> set = map.keySet();
+            Iterator<String> sit = set.iterator();
+
+            String result = map.get(sit.next()).toString();
+            String[] split = result.split(",");
+
+            Assert.assertEquals("{Labels(m)=[Person]",split[0]);
+            Assert.assertEquals(" Labels(n)=[Test]",split[1]);
+            Assert.assertEquals(" Type(w)=WROTE}",split[2]);
+
+            Assert.assertEquals(0,countAllNodes());
+        }
+    }
+
+
+    @Test
     public void virtualNodesShouldBeCreatable() {
         Result r= createVirtualNode();
         Assert.assertNotNull("Result should not be null", r);
@@ -78,44 +105,14 @@ public class BaselineProcedureTest {
     public void virtualNodesShouldntBePersistent() {
         Result r= createVirtualNode();
         Assert.assertNotNull("Result should not be null", r);
-
-        try (Transaction tx = db.beginTx()) {
-            r = db.execute("MATCH(n) RETURN COUNT(n)");
-            tx.success();
-        }
-        Assert.assertNotNull("Result should not be null",r);
-        while(r.hasNext()) {
-            Map<String,Object> map = r.next();
-            Set<String> set =map.keySet();
-            Iterator<String> sit = set.iterator();
-
-            while(sit.hasNext()){
-                Assert.assertEquals("0",map.get(sit.next()).toString());
-            }
-
-        }
+        Assert.assertEquals(0,countAllNodes());
     }
 
     @Test
     public void realNodesShouldntBePersistent() {
         Result r= createRealNode();
         Assert.assertNotNull("Result should not be null", r);
-
-        try (Transaction tx = db.beginTx()) {
-            r = db.execute("MATCH(n) RETURN COUNT(n)");
-            tx.success();
-        }
-        Assert.assertNotNull("Result should not be null",r);
-        while(r.hasNext()) {
-            Map<String,Object> map = r.next();
-            Set<String> set =map.keySet();
-            Iterator<String> sit = set.iterator();
-
-            while(sit.hasNext()){
-                Assert.assertEquals("1",map.get(sit.next()).toString());
-            }
-
-        }
+        Assert.assertEquals(1,countAllNodes());
         //Clean up
         detachDeleteAllNodes();
     }
@@ -161,7 +158,6 @@ public class BaselineProcedureTest {
                 .getOriginalPathString());
     }
 
-
     @Test
     public void removeWhitespaceShouldWorkFine(){
         BaselineProcedure sut = new BaselineProcedure();
@@ -196,11 +192,10 @@ public class BaselineProcedureTest {
         Assert.assertEquals(resultString,sut.replaceStringFromStatement(teststring,"CREATE VIRTUAL ","CREATE "));
     }
 
-
     private Result createRealNode(){
         Result r;
         try (Transaction tx = db.beginTx()) {
-            r = db.execute("CALL de.saschapeukert.get(\"CREATE (n:TEST{name: 'Hello'"+
+            r = db.execute("CALL de.saschapeukert.runCypher(\"CREATE (n:TEST{name: 'Hello'"+
                     "}) RETURN n.name as Name, Labels(n) as Labels\", null) yield value");
             tx.success();
         }
@@ -210,7 +205,7 @@ public class BaselineProcedureTest {
     private Result createVirtualNode(){
         Result r;
         try (Transaction tx = db.beginTx()) {
-            r = db.execute("CALL de.saschapeukert.get(\"CREATE (n:TEST{name: 'Hello', "+BaselineProcedure.PROPERTYKEY+
+            r = db.execute("CALL de.saschapeukert.runCypher(\"CREATE (n:TEST{name: 'Hello', "+BaselineProcedure.PROPERTYKEY+
                     ": true}) RETURN n.name as Name, Labels(n) as Labels\", null) yield value");
             tx.success();
         }
@@ -228,5 +223,22 @@ public class BaselineProcedureTest {
 
     public static void registerProcedure(GraphDatabaseService db, Class<?> procedure) throws KernelException {
         ((GraphDatabaseAPI)db).getDependencyResolver().resolveDependency(Procedures.class).register(procedure);
+    }
+
+    private int countAllNodes(){
+        Result r;
+        try (Transaction tx = db.beginTx()) {
+            r = db.execute("MATCH(n) RETURN COUNT(n)");
+            tx.success();
+        }
+        Assert.assertNotNull("Result should not be null",r);
+        while(r.hasNext()) {
+            Map<String,Object> map = r.next();
+            Set<String> set =map.keySet();
+            Iterator<String> sit = set.iterator();
+
+            return Integer.parseInt(map.get(sit.next()).toString());
+        }
+        return -1;
     }
 }
