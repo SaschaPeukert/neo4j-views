@@ -29,7 +29,7 @@ public class PathReplacement {
     public PathReplacement(String originalPathString, int start){
         this.originalPathString = originalPathString;
         this.startPos = start;
-        this.endPos = start + originalPathString.length();
+        this.endPos = start + originalPathString.length()-1;
 
         enhancePath();
     }

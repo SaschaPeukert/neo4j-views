@@ -77,7 +77,7 @@ public class BaselineProcedure {
         for(int i=listOfPathReplacements.size()-1;i>=0;i--){
             PathReplacement p  = listOfPathReplacements.get(i);
             statement = statement.substring(0,p.getStartPos()) + p.getNewPathString()
-                    + statement.substring(p.getEndPos());
+                    + statement.substring(p.getEndPos()+1);
 
         }
         return statement;
@@ -106,7 +106,6 @@ public class BaselineProcedure {
                         pos_end_min = tempPos;
                 }
             }
-
             path = path.substring(0,pos_end_min);
             returnList.add(new PathReplacement(path,posStart+diffSum));
             path = createVirtualString + path;

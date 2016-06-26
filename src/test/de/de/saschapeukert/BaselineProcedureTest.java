@@ -134,20 +134,30 @@ public class BaselineProcedureTest {
 
         list =sut.extractVirtualPart(oneVirtual);
         Assert.assertEquals("Failed to recognize Statement: " + oneVirtual,1,list.size());
-        Assert.assertEquals("Failed to extract Statement: " + oneVirtual,"(N:TEST)",list.get(0).getOriginalPathString());
+        Assert.assertEquals("Failed to extract Statement: " + oneVirtual,"(n:Test)",list.get(0).getOriginalPathString());
+
+        Assert.assertEquals("Wrong Startposition of PathReplacement for (n:Test)",15,list.get(0).getStartPos());
+        Assert.assertEquals("Wrong Endposition of PathReplacement for (n:Test)",22,list.get(0).getEndPos());
 
         list =sut.extractVirtualPart(threeVirtual);
         Assert.assertEquals("Failed to recognize Statement: " + threeVirtual,3,list.size());
-        Assert.assertEquals("Failed to extract first path in Statement: " + threeVirtual,"(N:TEST)",list.get(0)
+        Assert.assertEquals("Failed to extract first path in Statement: " + threeVirtual,"(n:Test)",list.get(0)
                 .getOriginalPathString());
-        Assert.assertEquals("Failed to extract second path in Statement: " + threeVirtual,"(M:PERSON)",list.get(1)
+        Assert.assertEquals("Failed to extract second path in Statement: " + threeVirtual,"(m:Person)",list.get(1)
                 .getOriginalPathString());
-        Assert.assertEquals("Failed to extract third path in Statement: " + threeVirtual,"M-[:WROTE]->N",list.get(2)
+        Assert.assertEquals("Failed to extract third path in Statement: " + threeVirtual,"m-[:WROTE]->n",list.get(2)
                 .getOriginalPathString());
+
+        Assert.assertEquals("Wrong Startposition of PathReplacement for (n:Test)",15,list.get(0).getStartPos());
+        Assert.assertEquals("Wrong Endposition of PathReplacement for (n:Test)",22,list.get(0).getEndPos());
+        Assert.assertEquals("Wrong Startposition of PathReplacement for (m:Person)",39,list.get(1).getStartPos());
+        Assert.assertEquals("Wrong Endposition of PathReplacement for (m:Person)",48,list.get(1).getEndPos());
+        Assert.assertEquals("Wrong Startposition of PathReplacement for m-[:WROTE]->n",74,list.get(2).getStartPos());
+        Assert.assertEquals("Wrong Endposition of PathReplacement for m-[:WROTE]->n",86,list.get(2).getEndPos());
 
         list =sut.extractVirtualPart(oneVirtualoneReal);
         Assert.assertEquals("Failed to recognize Statement: " + oneVirtualoneReal,1,list.size());
-        Assert.assertEquals("Failed to extract Statement: " + oneVirtualoneReal,"(N:TEST)",list.get(0)
+        Assert.assertEquals("Failed to extract Statement: " + oneVirtualoneReal,"(n:Test)",list.get(0)
                 .getOriginalPathString());
     }
 
