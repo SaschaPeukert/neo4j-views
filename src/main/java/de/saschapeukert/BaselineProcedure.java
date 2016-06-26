@@ -88,7 +88,6 @@ public class BaselineProcedure {
         String[] cypherKeywords = {"SET ","DELETE ","REMOVE ","FOREACH ", "RETURN ", " MATCH ", "WHERE ", "OPTIONAL",
                 "WITH ", "CREATE ", ";"};
         String createVirtualString = "CREATE VIRTUAL ";
-        //statement = statement.toUpperCase();
         String path = "";
         int diffSum =0;
 
