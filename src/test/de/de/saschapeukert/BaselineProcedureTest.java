@@ -163,6 +163,20 @@ public class BaselineProcedureTest {
     }
 
     @Test
+    public void replacePathWithVirtualPathsShouldWork(){
+        BaselineProcedure sut = new BaselineProcedure();
+
+        String threeVirtual = "CREATE VIRTUAL (n:Test) CREATE VIRTUAL (m:Person) WITH n,m create VIRTUAL m-[:WROTE]->n RETURN n";
+        List<PathReplacement> list =sut.extractVirtualPart(threeVirtual);
+
+        String result = sut.replacePathWithVirtualPaths(threeVirtual,list);
+        String inject = "{" + BaselineProcedure.PROPERTYKEY + ":true}";
+        String correctResult = "CREATE VIRTUAL (n:Test"+inject+") CREATE VIRTUAL (m:Person"+inject+") WITH n,m create VIRTUAL m-[:WROTE"+inject+"]->n RETURN n";
+
+        Assert.assertEquals(correctResult,result);
+    }
+
+    @Test
     public void replaceCreateVirtualWithCreateShouldWork(){
         BaselineProcedure sut = new BaselineProcedure();
 

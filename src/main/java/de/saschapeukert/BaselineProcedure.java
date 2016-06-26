@@ -74,20 +74,13 @@ public class BaselineProcedure {
     }
 
     public String replacePathWithVirtualPaths(String statement, List<PathReplacement> listOfPathReplacements){
-        String ret="";
-
-        int pos =0;
-        for(PathReplacement p : listOfPathReplacements){
-            //ret = ret + statement.substring(pos,p.getStartPos()) + p.getNewPathString() + ;
-            // TODO DO THIS
-
-            // CREATE VIRTUAL (n:Person)
-            // WITH n
-            // CREATE n-[:TESTED]->(g:Game)
+        for(int i=listOfPathReplacements.size()-1;i>=0;i--){
+            PathReplacement p  = listOfPathReplacements.get(i);
+            statement = statement.substring(0,p.getStartPos()) + p.getNewPathString()
+                    + statement.substring(p.getEndPos());
 
         }
-
-        return ret;
+        return statement;
     }
 
     public List<PathReplacement> extractVirtualPart(String statement){
@@ -95,29 +88,35 @@ public class BaselineProcedure {
         String[] cypherKeywords = {"SET ","DELETE ","REMOVE ","FOREACH ", "RETURN ", " MATCH ", "WHERE ", "OPTIONAL",
                 "WITH ", "CREATE ", ";"};
         String createVirtualString = "CREATE VIRTUAL ";
-        statement = statement.toUpperCase();
+        //statement = statement.toUpperCase();
         String path = "";
+        int diffSum =0;
 
-        while(statement.contains(createVirtualString)){
+        while(statement.toUpperCase().contains(createVirtualString)){
             // find start
-            int posStart = statement.indexOf(createVirtualString);
+            int posStart = statement.toUpperCase().indexOf(createVirtualString);
             posStart = posStart + createVirtualString.length();
             path = statement.substring(posStart); // statement with start after Create virtual
             // find end of path -> looking for next cypher keyword
             int pos_end_min = path.length()-1;
             for(String s:cypherKeywords){
                 if(path.contains(s)) {
-                    int tempPos = path.indexOf(s) - 1;
+                    int tempPos = path.toUpperCase().indexOf(s) - 1;
                     if (tempPos < pos_end_min)
                         pos_end_min = tempPos;
                 }
             }
+
             path = path.substring(0,pos_end_min);
-            returnList.add(new PathReplacement(path,posStart));
+            returnList.add(new PathReplacement(path,posStart+diffSum));
             path = createVirtualString + path;
 
-            statement =statement.substring(0,statement.indexOf(path)) +
-                    statement.substring(statement.indexOf(path) + path.length());
+            diffSum = diffSum + statement.length() - (statement.substring(0,statement.toUpperCase().indexOf(path.toUpperCase())) +
+                    statement.substring(statement.toUpperCase().indexOf(path.toUpperCase()) + path.length())).length();
+
+            statement =statement.substring(0,statement.toUpperCase().indexOf(path.toUpperCase())) +
+                    statement.substring(statement.toUpperCase().indexOf(path.toUpperCase()) + path.length());
+
         }
         return returnList;
     }
