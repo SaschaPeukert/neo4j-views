@@ -70,6 +70,14 @@ public class PathReplacement {
 
             int possibleDoublepoint = s.indexOf(":",posOpen);
 
+            if(node) {
+                int additionalBracket = s.indexOf("(", posOpen+1);
+                if (possibleDoublepoint >additionalBracket && additionalBracket!=-1) {
+                    // surrounding ()
+                    pos = s.indexOf("(", posOpen+1);
+                    continue;
+                }
+            }
             if(possibleDoublepoint == -1 ){
                 return s;
             }

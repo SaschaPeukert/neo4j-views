@@ -74,7 +74,7 @@ public class BaselineProcedureTest {
         try (Transaction tx = db.beginTx()) {
             r = db.execute("CALL de.saschapeukert.runCypher(\"CREATE VIRTUAL (n:Test) " +
                     "WITH n CREATE VIRTUAL (m:Person) WITH n,m create VIRTUAL " +
-                    "(m)-[w:WROTE]->(n) RETURN Labels(n), Labels(m), Type(w)\", null) yield value");
+                    "p = (((m)-[w:WROTE]->(n))) RETURN Labels(n), Labels(m), Type(w)\", null) yield value");
             tx.success();
         }
         Assert.assertNotNull("Result should not be null", r);
