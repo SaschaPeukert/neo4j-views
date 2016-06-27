@@ -41,6 +41,34 @@ public class BaselineProcedureTest {
     }
 
     @Test
+    public void complexCreateShouldWork() {
+        Result r;
+        try (Transaction tx = db.beginTx()) {
+            r = db.execute("CALL de.saschapeukert.runCypher(\"CREATE (n:Test) " +
+                    "WITH n CREATE (m:Person) WITH n,m create " +
+                    "(m)-[w:WROTE]->(n) RETURN Labels(n), Labels(m), Type(w)\", null) yield value");
+            tx.success();
+        }
+        Assert.assertNotNull("Result should not be null", r);
+        while (r.hasNext()) {
+            Map<String, Object> map = r.next();
+            Set<String> set = map.keySet();
+            Iterator<String> sit = set.iterator();
+
+            String result = map.get(sit.next()).toString();
+            String[] split = result.split(",");
+
+            Assert.assertEquals("{Labels(m)=[Person]",split[0]);
+            Assert.assertEquals(" Labels(n)=[Test]",split[1]);
+            Assert.assertEquals(" Type(w)=WROTE}",split[2]);
+
+            Assert.assertEquals(2,countAllNodes());
+            Assert.assertEquals(1,countAllRelationships());
+        }
+        r.close();
+    }
+
+    @Test
     public void complexQueryShouldWork() {
         Result r;
         try (Transaction tx = db.beginTx()) {
@@ -63,6 +91,7 @@ public class BaselineProcedureTest {
             Assert.assertEquals(" Type(w)=WROTE}",split[2]);
 
             Assert.assertEquals(0,countAllNodes());
+            Assert.assertEquals(0,countAllRelationships());
         }
         r.close();
     }
@@ -91,6 +120,7 @@ public class BaselineProcedureTest {
             Assert.assertEquals(" Type(w)=WROTE}", split[2]);
 
             Assert.assertEquals("Only the person node should be persisted",1, countAllNodes());
+            Assert.assertEquals(0,countAllRelationships());
         }
         r.close();
 
@@ -272,6 +302,25 @@ public class BaselineProcedureTest {
         Result r;
         try (Transaction tx = db.beginTx()) {
             r = db.execute("MATCH(n) RETURN COUNT(n)");
+            tx.success();
+        }
+        Assert.assertNotNull("Result should not be null",r);
+        while(r.hasNext()) {
+            Map<String,Object> map = r.next();
+            Set<String> set =map.keySet();
+            Iterator<String> sit = set.iterator();
+            r.close();
+            return Integer.parseInt(map.get(sit.next()).toString());
+        }
+        r.close();
+        return -1;
+    }
+
+    private int countAllRelationships(){
+        Result r;
+        try (Transaction tx = db.beginTx()) {
+            r = db.execute("MATCH()-[t]->() RETURN COUNT(t)");
+
             tx.success();
         }
         Assert.assertNotNull("Result should not be null",r);

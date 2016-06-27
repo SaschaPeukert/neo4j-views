@@ -34,14 +34,14 @@ public class BaselineProcedure {
         virtualHandler.setGraphDB(api);
 
         statement = replaceStringFromStatement(statement,"  "," "); // replace useless whitespace
-
         statement = replacePathWithVirtualPaths(statement,extractVirtualPart(statement));
-
         // remove VIRTUAL
         statement = replaceStringFromStatement(statement,"CREATE VIRTUAL ","CREATE ");
 
         api.registerTransactionEventHandler(virtualHandler);
-        return run(statement,params);
+        Stream<MapResult> res = run(statement,params);
+        //api.unregisterTransactionEventHandler(virtualHandler);
+        return res;
     }
 
     private Stream<MapResult> run(@Name("cypher") String statement, @Name("params") Map<String, Object> params) {
@@ -114,9 +114,7 @@ public class BaselineProcedure {
 
             statement =statement.substring(0,statement.toUpperCase().indexOf(path.toUpperCase())) +
                     statement.substring(statement.toUpperCase().indexOf(path.toUpperCase()) + path.length());
-
         }
         return returnList;
     }
 }
-

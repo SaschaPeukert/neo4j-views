@@ -30,9 +30,6 @@ public class NaiveBaselineTransactionEventHandler implements TransactionEventHan
                     tx.success();
                 }
             }
-            try {
-                r.delete();
-            } catch (NotFoundException e){}
         }
 
         // NODES
