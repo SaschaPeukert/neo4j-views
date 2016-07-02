@@ -27,13 +27,12 @@ public class BaselineProcedure {
     public static String PROPERTYKEY = "$VIRTUAL$";
 
     /**
-     * Keywords according to railroad from https://github.com/opencypher/openCypher
+     * The keywords according to the railroad from https://github.com/opencypher/openCypher that can be encountered after
+     * CREATE PathExpression
      * Railroad: https://s3.amazonaws.com/artifacts.opencypher.org/railroad/Cypher.html
      */
     private static String[] cypherKeywords = {"SET ","DELETE ","REMOVE ","UNWIND ","FOREACH ", "RETURN ", " MATCH ", "WHERE ",
             "OPTIONAL", "DETACH ", "WITH ", "CREATE ", "MERGE ", ";"};
-    // keywords according to railroad from
-    // https://s3.amazonaws.com/artifacts.opencypher.org/railroad/Cypher.html
 
     public static NaiveBaselineTransactionEventHandler virtualHandler = new NaiveBaselineTransactionEventHandler();
 
