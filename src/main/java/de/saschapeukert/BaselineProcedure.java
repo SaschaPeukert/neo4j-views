@@ -26,6 +26,15 @@ public class BaselineProcedure {
 
     public static String PROPERTYKEY = "$VIRTUAL$";
 
+    /**
+     * Keywords according to railroad from https://github.com/opencypher/openCypher
+     * Railroad: https://s3.amazonaws.com/artifacts.opencypher.org/railroad/Cypher.html
+     */
+    private static String[] cypherKeywords = {"SET ","DELETE ","REMOVE ","UNWIND ","FOREACH ", "RETURN ", " MATCH ", "WHERE ",
+            "OPTIONAL", "DETACH ", "WITH ", "CREATE ", "MERGE ", ";"};
+    // keywords according to railroad from
+    // https://s3.amazonaws.com/artifacts.opencypher.org/railroad/Cypher.html
+
     public static NaiveBaselineTransactionEventHandler virtualHandler = new NaiveBaselineTransactionEventHandler();
 
     @Procedure
@@ -85,8 +94,7 @@ public class BaselineProcedure {
 
     public List<PathReplacement> extractVirtualPart(String statement){
         List<PathReplacement> returnList = new ArrayList<>(); // Multiple Create Virtual possible!
-        String[] cypherKeywords = {"SET ","DELETE ","REMOVE ","FOREACH ", "RETURN ", " MATCH ", "WHERE ", "OPTIONAL",
-                "WITH ", "CREATE ", ";"};
+
         String createVirtualString = "CREATE VIRTUAL ";
         String path = "";
         int diffSum =0;
