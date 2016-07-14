@@ -155,6 +155,42 @@ public class BaselineProcedureTest {
     }
 
     @Test
+    public void virtualNodesShouldLookLikePersistedInTransaction() {
+        Result r;
+        try (Transaction tx = db.beginTx()) {
+            Result e = db.execute("CALL de.saschapeukert.runCypher(\"CREATE (n:TEST{name: 'Hello', "+BaselineProcedure.PROPERTYKEY+
+                    ": true}) \", null) yield value");
+            Assert.assertNotNull("Result should not be null", e);
+            r = db.execute("MATCH (n:TEST) RETURN n.name as Name, id(n) as Id");
+            tx.success();
+
+            Assert.assertNotNull("Result should not be null", r);
+            String id="";
+            while (r.hasNext()) {
+                Map<String, Object> map = r.next();
+                Set<String> set = map.keySet();
+                Iterator<String> sit = set.iterator();
+
+                String result = map.get(sit.next()).toString();
+                id = map.get(sit.next()).toString();
+                Assert.assertNotEquals("Id should not be null", "", id);
+                Assert.assertEquals("Name property should be set to 'Hello'", "Hello", result);
+            }
+            r = db.execute("MATCH (n:TEST) RETURN id(n) as Id");
+            tx.success();
+            while (r.hasNext()) {
+                Map<String, Object> map = r.next();
+                Set<String> set = map.keySet();
+                Iterator<String> sit = set.iterator();
+
+                String id_new = map.get(sit.next()).toString();
+                Assert.assertEquals("Id should be consistant throughout the transaction", id, id_new);
+            }
+            r.close();
+        }
+    }
+
+    @Test
     public void realNodesShouldBeCreatable() {
         Result r= createRealNode();
         Assert.assertNotNull("Result should not be null", r);
