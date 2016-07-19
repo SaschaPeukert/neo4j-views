@@ -212,10 +212,23 @@ public class BaselineProcedureTest {
             }
             r.close();
         }
-
         // Test if they persisted the virtual node
         Assert.assertEquals("Virtual Node should not be persisted",0,countAllNodes());
 
+
+        // Test if they persisted a real relationship connected to a virtual node (should not)
+        try (Transaction tx = db.beginTx()) {
+            r = db.execute("CALL de.saschapeukert.runCypher(\" CREATE VIRTUAL (n:Test {Name: 'Hello'}) " +
+                    "MERGE (n)<-[:WROTE]-(m:Person) " +
+                    " \", null)");
+            Assert.assertNotNull("Result should not be null", r);
+            tx.success();
+        }
+        Assert.assertEquals("Only the person Node should be persisted",1,countAllNodes());
+        Assert.assertEquals("No relationship should be persisted",0,countAllRelationships());
+
+        //clean up
+        detachDeleteEverything();
     }
 
     @Test

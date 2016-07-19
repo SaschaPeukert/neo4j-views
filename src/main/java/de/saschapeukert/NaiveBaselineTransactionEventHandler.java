@@ -1,6 +1,9 @@
 package de.saschapeukert;
 
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.PropertyContainer;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.event.TransactionData;
 import org.neo4j.graphdb.event.TransactionEventHandler;
 import org.neo4j.kernel.internal.GraphDatabaseAPI;
@@ -24,10 +27,21 @@ public class NaiveBaselineTransactionEventHandler implements TransactionEventHan
         Iterator<Relationship> rit = transactionData.createdRelationships().iterator();
         while (rit.hasNext()) {
             Relationship r = rit.next();
-            if(entityHasProperty(r,BaselineProcedure.PROPERTYKEY)){
-                try (Transaction tx = db.beginTx()) {
-                    r.delete();
-                    tx.success();
+            if(deleteRelationshipIfPropertyMatches(r,BaselineProcedure.PROPERTYKEY)){
+                continue;
+            }
+
+            // Also: Remove non-virtual REL if it is connected to virtual Node
+            // this could happen with additional MERGE clause
+            Node[] nodes =r.getNodes();
+            for (Node n : nodes){
+                if(entityHasProperty(n,BaselineProcedure.PROPERTYKEY) &&
+                        !entityHasProperty(r,BaselineProcedure.PROPERTYKEY)){
+                    try (Transaction tx = db.beginTx()) {
+                        r.delete();
+                        tx.success();
+                        continue;
+                    }
                 }
             }
         }
@@ -36,16 +50,32 @@ public class NaiveBaselineTransactionEventHandler implements TransactionEventHan
         Iterator<Node> it = transactionData.createdNodes().iterator();
         while (it.hasNext()) {
             Node n = it.next();
-            if(entityHasProperty(n,BaselineProcedure.PROPERTYKEY)){
-                try (Transaction tx = db.beginTx()) {
-                    n.delete();
-                    tx.success();
-                }
-            }
+            deleteNodeIfPropertyMatches(n,BaselineProcedure.PROPERTYKEY);
         }
         return null;
     }
 
+    private boolean deleteNodeIfPropertyMatches(Node entity, String key){
+        if(entityHasProperty(entity,key)){
+            try (Transaction tx = db.beginTx()) {
+                entity.delete();
+                tx.success();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean deleteRelationshipIfPropertyMatches(Relationship entity, String key){
+        if(entityHasProperty(entity,key)){
+            try (Transaction tx = db.beginTx()) {
+                entity.delete();
+                tx.success();
+                return true;
+            }
+        }
+        return false;
+    }
     private boolean entityHasProperty(PropertyContainer entity, String key){
         // would like to delete it here too, but can't because of PropertyContainer
         if(entity.hasProperty(key)){
