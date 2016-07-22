@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Created by Sascha Peukert on 03.07.2016.
  */
-public class StatementRewriter {
+public class QueryRewriter {
 
     /**
      * The keywords according to the railroad from https://github.com/opencypher/openCypher that can be encountered after
@@ -42,18 +42,18 @@ public class StatementRewriter {
         return statement;
     }
 
-    public String replacePathWithVirtualPaths(String statement, List<PathReplacement> listOfPathReplacements){
-        for(int i=listOfPathReplacements.size()-1;i>=0;i--){
-            PathReplacement p  = listOfPathReplacements.get(i);
-            statement = statement.substring(0,p.getStartPos()) + p.getNewPathString()
+    public String replacePathWithVirtualPaths(String statement, List<ExpressionReplacement> listOfExpressionReplacements){
+        for(int i = listOfExpressionReplacements.size()-1; i>=0; i--){
+            ExpressionReplacement p  = listOfExpressionReplacements.get(i);
+            statement = statement.substring(0,p.getStartPos()) + p.getNewExpression()
                     + statement.substring(p.getEndPos()+1);
 
         }
         return statement;
     }
 
-    public List<PathReplacement> extractVirtualPart(String statement){
-        List<PathReplacement> returnList = new ArrayList<>(); // Multiple Create Virtual possible!
+    public List<ExpressionReplacement> extractVirtualPart(String statement){
+        List<ExpressionReplacement> returnList = new ArrayList<>(); // Multiple Create Virtual possible!
 
         String createVirtualString = "CREATE VIRTUAL ";
         String path = "";
@@ -74,7 +74,7 @@ public class StatementRewriter {
                 }
             }
             path = path.substring(0,pos_end_min);
-            returnList.add(new PathReplacement(path,posStart+diffSum));
+            returnList.add(new ExpressionReplacement(path,posStart+diffSum));
             path = createVirtualString + path;
 
             diffSum = diffSum + statement.length() - (statement.substring(0,statement.toUpperCase().indexOf(path.toUpperCase())) +

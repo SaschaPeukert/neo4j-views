@@ -40,6 +40,24 @@ public class BaselineProcedureTest {
     }
 
     @Test
+    public void testGetMethodForPropertyKey() {
+        Result r;
+        try (Transaction tx = db.beginTx()) {
+            r = db.execute("CALL de.saschapeukert.getVirtualPropertyKey()");
+            tx.success();
+        }
+        Assert.assertNotNull("Result should not be null", r);
+        while (r.hasNext()) {
+            Map<String, Object> map = r.next();
+            Set<String> set = map.keySet();
+            Iterator<String> sit = set.iterator();
+
+            String result = map.get(sit.next()).toString();
+            Assert.assertEquals(BaselineProcedure.PROPERTYKEY, result);
+        }
+    }
+
+    @Test
     public void complexCreateShouldWork() {
         Result r;
         try (Transaction tx = db.beginTx()) {

@@ -3,19 +3,19 @@ package de.saschapeukert;
 /**
  * Created by Sascha Peukert on 23.06.2016.
  */
-public class PathReplacement {
+public class ExpressionReplacement {
 
-    private String originalPathString;
-    private String newPathString;
+    private String originalExpression;
+    private String newExpression;
     private int startPos; // Startposition in original Querystring
     private int endPos; // Endposition in original Querystring
 
-    public String getOriginalPathString(){
-        return originalPathString;
+    public String getOriginalExpression(){
+        return originalExpression;
     }
 
-    public String getNewPathString(){
-        return newPathString;
+    public String getNewExpression(){
+        return newExpression;
     }
 
     public int getStartPos(){
@@ -26,21 +26,21 @@ public class PathReplacement {
         return endPos;
     }
 
-    public PathReplacement(String originalPathString, int start){
-        this.originalPathString = originalPathString;
+    public ExpressionReplacement(String originalExpression, int start){
+        this.originalExpression = originalExpression;
         this.startPos = start;
-        this.endPos = start + originalPathString.length()-1;
+        this.endPos = start + originalExpression.length()-1;
 
-        enhancePath();
+        enhanceExpression();
     }
 
     // enhances the path with the marking property where it is necessary
-    public void enhancePath(){
+    public void enhanceExpression(){
         // Every new Rel/Node in the virtual Path will be marked
         // (n:LABEL) || (:LABEL) -> new Node
         // [:REL] || [r:REL] -> new Rel
-        newPathString = injectVirtualProperties(originalPathString,true);
-        newPathString = injectVirtualProperties(newPathString,false);
+        newExpression = injectVirtualProperties(originalExpression,true);
+        newExpression = injectVirtualProperties(newExpression,false);
 
     }
 
