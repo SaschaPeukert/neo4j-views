@@ -65,7 +65,7 @@ public class QueryRewriter {
             posStart = posStart + createVirtualString.length();
             path = statement.substring(posStart); // statement with start after Create virtual
             // find end of path -> looking for next cypher keyword
-            int pos_end_min = path.length()-1;
+            int pos_end_min = path.length();
             for(String s:cypherKeywords){
                 if(path.contains(s)) {
                     int tempPos = path.toUpperCase().indexOf(s) - 1;
@@ -73,7 +73,9 @@ public class QueryRewriter {
                         pos_end_min = tempPos;
                 }
             }
-            path = path.substring(0,pos_end_min);
+            path = path.substring(0,pos_end_min); //because pos_end_min is inclusive
+            // just in case remove
+
             returnList.add(new ExpressionReplacement(path,posStart+diffSum));
             path = createVirtualString + path;
 

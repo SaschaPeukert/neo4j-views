@@ -35,8 +35,8 @@ public class NaiveBaselineTransactionEventHandler implements TransactionEventHan
             // this could happen with additional MERGE clause
             Node[] nodes =r.getNodes();
             for (Node n : nodes){
-                if(entityHasProperty(n,BaselineProcedure.PROPERTYKEY) &&
-                        !entityHasProperty(r,BaselineProcedure.PROPERTYKEY)){
+                if(entityHasPropertySetTrue(n,BaselineProcedure.PROPERTYKEY) &&
+                        !entityHasPropertySetTrue(r,BaselineProcedure.PROPERTYKEY)){
                     try (Transaction tx = db.beginTx()) {
                         r.delete();
                         tx.success();
@@ -56,7 +56,7 @@ public class NaiveBaselineTransactionEventHandler implements TransactionEventHan
     }
 
     private boolean deleteNodeIfPropertyMatches(Node entity, String key){
-        if(entityHasProperty(entity,key)){
+        if(entityHasPropertySetTrue(entity,key)){
             try (Transaction tx = db.beginTx()) {
                 entity.delete();
                 tx.success();
@@ -67,7 +67,7 @@ public class NaiveBaselineTransactionEventHandler implements TransactionEventHan
     }
 
     private boolean deleteRelationshipIfPropertyMatches(Relationship entity, String key){
-        if(entityHasProperty(entity,key)){
+        if(entityHasPropertySetTrue(entity,key)){
             try (Transaction tx = db.beginTx()) {
                 entity.delete();
                 tx.success();
@@ -76,10 +76,17 @@ public class NaiveBaselineTransactionEventHandler implements TransactionEventHan
         }
         return false;
     }
-    private boolean entityHasProperty(PropertyContainer entity, String key){
+    private boolean entityHasPropertySetTrue(PropertyContainer entity, String key){
         // would like to delete it here too, but can't because of PropertyContainer
         if(entity.hasProperty(key)){
-            return true;
+            try {
+                boolean isSet = (boolean) entity.getProperty(key);
+                if (isSet)
+                    return true;
+            } catch (Exception e){
+                // if, for whatever reason, this property is not a boolean
+                return false;
+            }
         }
         return false;
     }

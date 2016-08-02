@@ -22,9 +22,11 @@ public class ExpressionReplacementTest {
     private String testRel5 = "-[wr:WROTE{test:true}]->";
     private String testRel6 = "-[:WROTE{test:true}]->";
 
-    private String testBoth1 = "(:Person{name:'Bob'})-[wr:WROTE{test:true}]->(:Test)";
+    private String testBoth1 = "((:Person{name:'Bob'})-[wr:WROTE{test:true}]->(:Test))";
     private String testBoth2 = "(:Person{name:'Bob'})-[wr:WROTE{test:true}]->(:Test)<-[:WROTE]-(he:Person)";
     private String testBoth3 = "(n)-[:TESTED]->(:Person)";
+
+    private String testComma = "(n:Test), (m:Person)";
 
     private static ExpressionReplacement SuT;
 
@@ -82,8 +84,8 @@ public class ExpressionReplacementTest {
 
         SuT = new ExpressionReplacement(testBoth1,0);
         Assert.assertEquals(
-                "(:Person{name:'Bob',"+BaselineProcedure.PROPERTYKEY+":true})-[wr:WROTE{test:true," +
-                BaselineProcedure.PROPERTYKEY+":true}]->(:Test{"+BaselineProcedure.PROPERTYKEY+":true})"
+                "((:Person{name:'Bob',"+BaselineProcedure.PROPERTYKEY+":true})-[wr:WROTE{test:true," +
+                BaselineProcedure.PROPERTYKEY+":true}]->(:Test{"+BaselineProcedure.PROPERTYKEY+":true}))"
                 ,SuT.getNewExpression()
         );
 
@@ -99,6 +101,13 @@ public class ExpressionReplacementTest {
         SuT = new ExpressionReplacement(testBoth3,0);
         Assert.assertEquals(
                 "(n)-[:TESTED{"+BaselineProcedure.PROPERTYKEY+":true}]->(:Person{" +
+                        BaselineProcedure.PROPERTYKEY+":true})"
+                ,SuT.getNewExpression()
+        );
+
+        SuT = new ExpressionReplacement(testComma,0);
+        Assert.assertEquals(
+                "(n:Test{" + BaselineProcedure.PROPERTYKEY+":true}), (m:Person{" +
                         BaselineProcedure.PROPERTYKEY+":true})"
                 ,SuT.getNewExpression()
         );

@@ -24,6 +24,7 @@ public class StatementRewriterTests {
         String oneVirtual = "CREATE VIRTUAL (n:Test) RETURN n";
         String threeVirtual = "CREATE VIRTUAL (n:Test) CREATE VIRTUAL (m:Person) WITH n,m create VIRTUAL m-[:WROTE]->n RETURN n";
         String oneVirtualoneReal = "CREATE VIRTUAL (n:Test) CREATE (m:Person) RETURN n,m";
+        String twoCommaSeparated = "CREATE VIRTUAL (n:Test), (m:Person) RETURN n,m";
 
         List<ExpressionReplacement> list =sut.extractVirtualPart(count);
         Assert.assertEquals("Querys without CREATE VIRTUAL should not be appear in the list at all",0,list.size());
@@ -54,6 +55,11 @@ public class StatementRewriterTests {
         list =sut.extractVirtualPart(oneVirtualoneReal);
         Assert.assertEquals("Failed to recognize Statement: " + oneVirtualoneReal,1,list.size());
         Assert.assertEquals("Failed to extract Statement: " + oneVirtualoneReal,"(n:Test)",list.get(0)
+                .getOriginalExpression());
+
+        list = sut.extractVirtualPart(twoCommaSeparated);
+        Assert.assertEquals("Failed to recognize Statement: " + twoCommaSeparated,1,list.size());
+        Assert.assertEquals("Failed to extract Statement: " + twoCommaSeparated,"(n:Test), (m:Person)",list.get(0)
                 .getOriginalExpression());
     }
 

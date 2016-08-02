@@ -28,7 +28,7 @@ public class BaselineProcedure {
 
     public static String PROPERTYKEY = "$VIRTUAL$";
 
-    public static NaiveBaselineTransactionEventHandler virtualHandler = new NaiveBaselineTransactionEventHandler();
+    private static NaiveBaselineTransactionEventHandler virtualHandler = new NaiveBaselineTransactionEventHandler();
 
     @Procedure
     @PerformsWrites
