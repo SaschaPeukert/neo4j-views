@@ -81,8 +81,12 @@ public class NaiveBaselineTransactionEventHandler implements TransactionEventHan
         if(entity.hasProperty(key)){
             try {
                 boolean isSet = (boolean) entity.getProperty(key);
-                if (isSet)
+                if (isSet) {
                     return true;
+                } else{
+                    // remove it automatically
+                    entity.removeProperty(key);
+                }
             } catch (Exception e){
                 // if, for whatever reason, this property is not a boolean
                 return false;
