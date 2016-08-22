@@ -128,6 +128,44 @@ public class BaselineProcedureTest {
     }
 
     @Test
+    public void virtualSetFalseShouldWorkTransactionWide() {
+        Result r;
+        try (Transaction tx = db.beginTx()) {
+            Result re = db.execute("CALL de.saschapeukert.runCypher(\"CREATE VIRTUAL (n:Test), (m:Person) " +
+                    "\", null)");
+            Assert.assertNotNull("Result should not be null", re);
+            r = db.execute("CALL de.saschapeukert.runCypher(\"MATCH (n:Test)<-[w:WROTE]-(m:Person) SET n." +
+                    BaselineProcedure.PROPERTYKEY + "=false, " +
+                    "m."+ BaselineProcedure.PROPERTYKEY + "=false " +
+                    " RETURN Labels(n), Labels(m), Type(w)" +
+                    "\", null)");
+
+            tx.success();
+        }
+        Assert.assertNotNull("Result should not be null", r);
+        while (r.hasNext()) {
+            Map<String, Object> map = r.next();
+            Set<String> set = map.keySet();
+            Iterator<String> sit = set.iterator();
+
+            String result = map.get(sit.next()).toString();
+            String[] split = result.split(",");
+
+            Assert.assertEquals("{Labels(m)=[Person]",split[0]);
+            Assert.assertEquals(" Labels(n)=[Test]",split[1]);
+            Assert.assertEquals(" Type(w)=WROTE}",split[2]);
+
+            Assert.assertEquals(2,countAllNodes());
+            Assert.assertEquals(1,countAllRelationships());
+        }
+
+        r.close();
+
+        //clean up
+        detachDeleteEverything();
+    }
+
+    @Test
     public void complexCreateShouldWork() {
         Result r;
         try (Transaction tx = db.beginTx()) {
