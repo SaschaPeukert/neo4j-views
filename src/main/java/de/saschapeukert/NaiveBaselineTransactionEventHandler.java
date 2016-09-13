@@ -37,11 +37,13 @@ public class NaiveBaselineTransactionEventHandler implements TransactionEventHan
             for (Node n : nodes){
                 if(entityHasPropertySetTrue(n,BaselineProcedure.PROPERTYKEY) &&
                         !entityHasPropertySetTrue(r,BaselineProcedure.PROPERTYKEY)){
-                    try (Transaction tx = db.beginTx()) {
+
+                    throw new Exception("Relationship connected to virtual entities detected. Abort and rollback transaction");
+                    /*try (Transaction tx = db.beginTx()) {
                         r.delete();
                         tx.success();
                         continue;
-                    }
+                    }*/
                 }
             }
         }

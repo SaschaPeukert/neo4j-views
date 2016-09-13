@@ -131,7 +131,7 @@ public class BaselineProcedureTest {
     public void virtualSetFalseShouldWorkTransactionWide() {
         Result r;
         try (Transaction tx = db.beginTx()) {
-            Result re = db.execute("CALL de.saschapeukert.runCypher(\"CREATE VIRTUAL (n:Test), (m:Person) " +
+            Result re = db.execute("CALL de.saschapeukert.runCypher(\"CREATE VIRTUAL (n:Test)<-[:WROTE]-(m:Person) " +
                     "\", null)");
             Assert.assertNotNull("Result should not be null", re);
             r = db.execute("CALL de.saschapeukert.runCypher(\"MATCH (n:Test)<-[w:WROTE]-(m:Person) SET n." +
@@ -156,7 +156,7 @@ public class BaselineProcedureTest {
             Assert.assertEquals(" Type(w)=WROTE}",split[2]);
 
             Assert.assertEquals(2,countAllNodes());
-            Assert.assertEquals(1,countAllRelationships());
+            Assert.assertEquals(0,countAllRelationships());
         }
 
         r.close();
@@ -349,8 +349,11 @@ public class BaselineProcedureTest {
                     " \", null)");
             Assert.assertNotNull("Result should not be null", r);
             tx.success();
+        } catch (Exception e){
+            Assert.assertEquals("Transaction was marked as successful, but unable to commit transaction so rolled back.",
+                    e.getMessage());
         }
-        Assert.assertEquals("Only the person Node should be persisted",1,countAllNodes());
+        Assert.assertEquals("No Node should be persisted",0,countAllNodes());
         Assert.assertEquals("No relationship should be persisted",0,countAllRelationships());
 
         //clean up
