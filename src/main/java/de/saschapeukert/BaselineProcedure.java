@@ -37,7 +37,7 @@ public class BaselineProcedure {
         QueryRewriter sr = new QueryRewriter();
         api.registerTransactionEventHandler(virtualHandler);
         Stream<MapResult> res = run(sr.rewrite(statement),params);
-        //api.unregisterTransactionEventHandler(virtualHandler);
+
         return res;
     }
 
@@ -57,6 +57,16 @@ public class BaselineProcedure {
         return StreamSupport
                 .stream( spliteratorUnknownSize( s.iterator(), 0 ), false );
     }
+
+    @Procedure
+    public Stream<StringResult> resetTAEventHandler(){
+        api.unregisterTransactionEventHandler(virtualHandler);
+        List<StringResult> s = new ArrayList<>(1);
+        s.add(new StringResult("DONE"));
+        return StreamSupport
+                .stream( spliteratorUnknownSize( s.iterator(), 0 ), false );
+    }
+    //api.unregisterTransactionEventHandler(virtualHandler);
 
     private Stream<MapResult> run(@Name("cypher") String statement, @Name("params") Map<String, Object> params) {
         if (params == null) params = Collections.emptyMap();
