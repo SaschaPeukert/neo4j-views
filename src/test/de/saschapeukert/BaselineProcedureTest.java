@@ -544,7 +544,7 @@ public class BaselineProcedureTest {
     }
 
     public static void registerProcedure(GraphDatabaseService db, Class<?> procedure) throws KernelException {
-        ((GraphDatabaseAPI)db).getDependencyResolver().resolveDependency(Procedures.class).register(procedure);
+        ((GraphDatabaseAPI)db).getDependencyResolver().resolveDependency(Procedures.class).registerProcedure(procedure);
     }
 
     private int countAllNodes(){
